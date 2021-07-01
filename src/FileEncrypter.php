@@ -194,7 +194,7 @@ class FileEncrypter
         while ($i <= 200 && $plaintext === false) {
             $plaintext = openssl_decrypt($ciphertext, $this->cipher, $this->key, OPENSSL_RAW_DATA, $iv);
             $i++;
-            usleep(100);
+            usleep(500);
         }
         return $plaintext;
     }
