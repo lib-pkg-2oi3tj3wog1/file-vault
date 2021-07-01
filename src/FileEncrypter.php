@@ -191,11 +191,11 @@ class FileEncrypter
     {
         $i = 0;
         $plaintext = false;
-        while ($i <= 12 && $plaintext === false) {
+        while ($i <= 200 && $plaintext === false) {
             $plaintext = openssl_decrypt($ciphertext, $this->cipher, $this->key, OPENSSL_RAW_DATA, $iv);
             $i++;
+            usleep(100);
         }
-        fputs(fopen('php://stderr', 'wb'), "retry-decrypt: {$i}");
         return $plaintext;
     }
 }
