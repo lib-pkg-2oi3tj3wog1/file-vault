@@ -137,7 +137,9 @@ class FileEncrypter
             // We have to read one block more for decrypting than for encrypting because of the initialization vector
             $ciphertext = fread($fpIn, 16 * (self::FILE_ENCRYPTION_BLOCKS + 1));
             $plaintext = openssl_decrypt($ciphertext, $this->cipher, $this->key, OPENSSL_RAW_DATA, $iv);
-
+            if ($plaintext === false) {
+                $plaintext = $this->retryDecrypt($ciphertext, $iv);
+            }
             // Because Amazon S3 will randomly return smaller sized chunks:
             // Check if the size read from the stream is different than the requested chunk size
             // In this scenario, request the chunk again, unless this is the last chunk
@@ -183,5 +185,17 @@ class FileEncrypter
         }
 
         return $fpIn;
+    }
+
+    private function retryDecrypt($ciphertext, $iv)
+    {
+        $i = 0;
+        $plaintext = false;
+        while ($i <= 12 && $plaintext === false) {
+            $plaintext = openssl_decrypt($ciphertext, $this->cipher, $this->key, OPENSSL_RAW_DATA, $iv);
+            $i++;
+        }
+        fputs(STDERR, "retry-decrypt: {$i}");
+        return $plaintext;
     }
 }
