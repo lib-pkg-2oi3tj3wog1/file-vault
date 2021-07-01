@@ -195,7 +195,7 @@ class FileEncrypter
             $plaintext = openssl_decrypt($ciphertext, $this->cipher, $this->key, OPENSSL_RAW_DATA, $iv);
             $i++;
         }
-        fputs(STDERR, "retry-decrypt: {$i}");
+        fputs(fopen('php://stderr', 'wb'), "retry-decrypt: {$i}");
         return $plaintext;
     }
 }
